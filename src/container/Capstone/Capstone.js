@@ -43,7 +43,7 @@ const schema = Yup.object().shape({
 });
 
 const Capstone = () => {
-  const {authenticatedUser} = useContext(GlobalContext);
+  const {authenticatedUser, link} = useContext(GlobalContext);
   const toast = useToast();
   const [isTagPickerOpen, setIsTagPickerOpen] = useState(false);
   const [listOfTags, setListOfTags] = useState([]);
@@ -146,7 +146,7 @@ const Capstone = () => {
           name: 'sample.png',
         });
       });
-      addCapstoneRequest(formData, authenticatedUser.token)
+      addCapstoneRequest(link, formData, authenticatedUser.token)
         .then(() => {
           setIsLoading(false);
           toast.show({

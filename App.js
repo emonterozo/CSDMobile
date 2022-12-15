@@ -8,10 +8,13 @@ import {theme} from './src/theme/theme';
 
 const App = () => {
   const [authenticatedUser, setAuthenticatedUser] = useState(null);
+  const [link, setLink] = useState('');
 
   const initialContext = {
     authenticatedUser,
     setAuthenticatedUser,
+    link,
+    setLink,
   };
   return (
     <GlobalContext.Provider value={initialContext}>

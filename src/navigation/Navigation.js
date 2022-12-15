@@ -1,4 +1,5 @@
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
+import {Spinner, Center} from 'native-base';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {isNull} from 'lodash';
@@ -14,22 +15,33 @@ import {
 } from '../container';
 import GlobalContext from '../config/context';
 import {getUser} from '../utils/utils';
+import {getLinkRequest} from '../services/request';
 
 const AuthStack = createStackNavigator();
 const HomeStack = createStackNavigator();
 
 const Navigation = () => {
-  const {authenticatedUser, setAuthenticatedUser} = useContext(GlobalContext);
+  const [isLoading, setIsLoading] = useState(true);
+  const {authenticatedUser, setAuthenticatedUser, setLink} =
+    useContext(GlobalContext);
 
   useEffect(() => {
-    getUser().then(user => {
-      setAuthenticatedUser(user);
+    getLinkRequest().then(res => {
+      setLink(res.links[0].link);
+      getUser().then(user => {
+        setAuthenticatedUser(user);
+        setIsLoading(false);
+      });
     });
   }, []);
 
   return (
     <NavigationContainer>
-      {isNull(authenticatedUser) ? (
+      {isLoading ? (
+        <Center flex={1}>
+          <Spinner size="lg" color="primary.400" />
+        </Center>
+      ) : isNull(authenticatedUser) ? (
         <AuthStack.Navigator screenOptions={{headerShown: false}}>
           <AuthStack.Screen name="Login" component={Login} />
           <AuthStack.Screen name="Register" component={Register} />

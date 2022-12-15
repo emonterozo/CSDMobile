@@ -65,7 +65,7 @@ const initial = {
 };
 
 const Register = ({navigation}) => {
-  const {setAuthenticatedUser} = useContext(GlobalContext);
+  const {link} = useContext(GlobalContext);
   const [isLoading, setIsLoading] = useState(false);
   const [types, setTypes] = useState([]);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -94,7 +94,7 @@ const Register = ({navigation}) => {
       name: 'sample.png',
     });
 
-    registerRequest(formData)
+    registerRequest(link, formData)
       .then(res => {
         setIsLoading(false);
         const {errors, data} = res;
@@ -289,7 +289,7 @@ const Register = ({navigation}) => {
                   InputRightElement={
                     <IconButton
                       onPress={() =>
-                        setIsPasswordVisible(!isConfirmPasswordVisible)
+                        setIsConfirmPasswordVisible(!isConfirmPasswordVisible)
                       }
                       icon={
                         <Icon

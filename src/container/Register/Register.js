@@ -65,7 +65,6 @@ const initial = {
 };
 
 const Register = ({navigation}) => {
-  const {link} = useContext(GlobalContext);
   const [isLoading, setIsLoading] = useState(false);
   const [types, setTypes] = useState([]);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -94,7 +93,7 @@ const Register = ({navigation}) => {
       name: 'sample.png',
     });
 
-    registerRequest(link, formData)
+    registerRequest(formData)
       .then(res => {
         setIsLoading(false);
         const {errors, data} = res;

@@ -163,7 +163,7 @@ const Login = ({navigation}) => {
         colorScheme="lightBlue"
         w="70%"
         onPress={() => setAuthenticatedUser(GUEST_USER)}>
-        Continue as Guest
+        Continue as Visitor
       </Button>
     </Box>
   );

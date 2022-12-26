@@ -4,9 +4,9 @@ import {SERVER_URL} from '../config/config';
 import {API} from './api';
 import authorization from './authorization';
 
-export const registerRequest = async (link, payload) => {
+export const registerRequest = async payload => {
   return axios
-    .post(link + API.REGISTER, payload, {
+    .post(SERVER_URL + API.REGISTER, payload, {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'multipart/form-data',
@@ -51,9 +51,9 @@ export const getTagsProfessorRequest = async token => {
     });
 };
 
-export const addCapstoneRequest = async (link, payload, token) => {
+export const addCapstoneRequest = async (payload, token) => {
   return axios
-    .post(link + API.ADD_CAPSTONE, payload, {
+    .post(SERVER_URL + API.ADD_CAPSTONE, payload, {
       headers: {
         ...authorization(token),
         Accept: 'application/json',
@@ -143,15 +143,6 @@ export const getCommentsRequest = async id => {
 export const getCapstoneRequest = async id => {
   return axios
     .get(SERVER_URL + API.GET_CAPSTONE + id)
-    .then(response => response.data)
-    .catch(error => {
-      throw error;
-    });
-};
-
-export const getLinkRequest = async () => {
-  return axios
-    .get(SERVER_URL + API.GET_LINK)
     .then(response => response.data)
     .catch(error => {
       throw error;

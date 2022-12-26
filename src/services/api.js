@@ -11,5 +11,4 @@ export const API = {
   ADD_COMMENT: '/capstone/add/comment',
   GET_COMMENTS: '/capstone/comments/',
   GET_CAPSTONE: '/capstone/list/',
-  GET_LINK: '/link',
 };

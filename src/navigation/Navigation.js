@@ -15,23 +15,18 @@ import {
 } from '../container';
 import GlobalContext from '../config/context';
 import {getUser} from '../utils/utils';
-import {getLinkRequest} from '../services/request';
 
 const AuthStack = createStackNavigator();
 const HomeStack = createStackNavigator();
 
 const Navigation = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const {authenticatedUser, setAuthenticatedUser, setLink} =
-    useContext(GlobalContext);
+  const {authenticatedUser, setAuthenticatedUser} = useContext(GlobalContext);
 
   useEffect(() => {
-    getLinkRequest().then(res => {
-      setLink(res.links[0].link);
-      getUser().then(user => {
-        setAuthenticatedUser(user);
-        setIsLoading(false);
-      });
+    getUser().then(user => {
+      setAuthenticatedUser(user);
+      setIsLoading(false);
     });
   }, []);
 

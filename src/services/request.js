@@ -66,6 +66,21 @@ export const addCapstoneRequest = async (payload, token) => {
     });
 };
 
+export const updateCapstoneRequest = async (payload, token) => {
+  return axios
+    .post(SERVER_URL + API.UPDATE_CAPSTONE, payload, {
+      headers: {
+        ...authorization(token),
+        Accept: 'application/json',
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+    .then(response => response.data)
+    .catch(error => {
+      throw error;
+    });
+};
+
 export const getCapstonesRequest = async () => {
   return axios
     .get(SERVER_URL + API.GET_CAPSTONES)

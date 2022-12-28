@@ -15,18 +15,18 @@ import {
   IconButton,
   Button,
   Modal,
-  Input,
+  Fab,
 } from 'native-base';
 import Carousel from 'react-native-snap-carousel';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Rating} from 'react-native-ratings';
+import {useIsFocused} from '@react-navigation/native';
 
 import {AppBar} from '../../components';
 import {getRatings} from '../../utils/utils';
 import GlobalContext from '../../config/context';
 import {
   getCapstoneRequest,
-  updatePercentageRequest,
   updateRatingRequest,
   updateViewsRequest,
 } from '../../services/request';
@@ -37,6 +37,7 @@ export const SLIDER_WIDTH = Dimensions.get('window').width + 30;
 export const ITEM_WIDTH = Math.round(SLIDER_WIDTH * 0.8);
 
 const Details = ({navigation, route}) => {
+  const isFocused = useIsFocused();
   const {authenticatedUser} = useContext(GlobalContext);
   const {id} = route.params;
 
@@ -62,7 +63,7 @@ const Details = ({navigation, route}) => {
 
   useEffect(() => {
     getCapstone();
-  }, []);
+  }, [isFocused]);
 
   const handlePressSubmitRating = () => {
     setIsLoading(true);
@@ -272,6 +273,38 @@ const Details = ({navigation, route}) => {
               </Box>
             </Box>
           </ScrollView>
+          {isEqual(capstone?.uploaded_by._id, authenticatedUser._id) && (
+            <Fab
+              renderInPortal={false}
+              shadow={2}
+              bottom={20}
+              size="md"
+              bg="primary.500"
+              onPress={() => {
+                const images = [capstone.logo, ...capstone.images];
+                for (let i = 0; i < 3 - capstone.images.length; i++) {
+                  images.push('');
+                }
+                const tags = capstone.tags.map(tag => tag._id);
+                navigation.navigate('Capstone', {
+                  capstone: {
+                    ...capstone,
+                    tags: tags,
+                    imagesHolder: images,
+                  },
+                  action: 'Update',
+                });
+              }}
+              icon={
+                <Icon
+                  color="white"
+                  as={MaterialCommunityIcons}
+                  name="file-document-edit-outline"
+                  size="md"
+                />
+              }
+            />
+          )}
         </>
       )}
     </Box>

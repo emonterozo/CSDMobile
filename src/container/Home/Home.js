@@ -173,7 +173,12 @@ const Home = ({navigation}) => {
           bottom={20}
           size="md"
           bg="primary.500"
-          onPress={() => navigation.navigate('Capstone')}
+          onPress={() => {
+            navigation.navigate('Capstone', {
+              capstone: null,
+              action: 'Add',
+            });
+          }}
           icon={
             <Icon
               color="white"

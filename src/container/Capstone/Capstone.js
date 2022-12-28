@@ -22,13 +22,23 @@ import * as Yup from 'yup';
 
 import {AppBar, Toast} from '../../components';
 import {isEmpty, isEqual} from 'lodash';
-import {addCapstoneRequest, getTagsRequest} from '../../services/request';
+import {
+  addCapstoneRequest,
+  getTagsRequest,
+  updateCapstoneRequest,
+} from '../../services/request';
 import GlobalContext from '../../config/context';
+import {isUrl} from '../../utils/utils';
 
 const schema = Yup.object().shape({
   title: Yup.string().required('This field is required'),
   description: Yup.string().required('This field is required'),
-  website: Yup.string().required('This field is required'),
+  website: Yup.string()
+    .matches(
+      /((https?):\/\/)?(www.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$/,
+      'Enter correct url!',
+    )
+    .required('This field is required'),
   documents: Yup.array(
     Yup.object().shape({
       fileName: Yup.string(),
@@ -40,14 +50,29 @@ const schema = Yup.object().shape({
     .required('This field is required'),
 });
 
-const Capstone = () => {
+const schemaUpdate = Yup.object().shape({
+  title: Yup.string().required('This field is required'),
+  description: Yup.string().required('This field is required'),
+  website: Yup.string()
+    .matches(
+      /((https?):\/\/)?(www.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$/,
+      'Enter correct url!',
+    )
+    .required('This field is required'),
+  tags: Yup.array()
+    .min(1, 'This field is required')
+    .required('This field is required'),
+});
+
+const Capstone = ({navigation, route}) => {
+  const {action, capstone} = route.params;
   const {authenticatedUser} = useContext(GlobalContext);
   const toast = useToast();
   const [isTagPickerOpen, setIsTagPickerOpen] = useState(false);
   const [listOfTags, setListOfTags] = useState([]);
-  const [isProfPickerOpen, setIsProfPickerOpen] = useState(false);
-  const [listOfProfessor, setListOfProfessor] = useState([]);
-  const [images, setImages] = useState(['', '', '', '']);
+  const [images, setImages] = useState(
+    isEqual(action, 'Update') ? capstone?.imagesHolder : ['', '', '', ''],
+  );
   const [isLoading, setIsLoading] = useState(false);
 
   const initial = {
@@ -77,6 +102,13 @@ const Capstone = () => {
       },
     ],
     tags: [],
+  };
+
+  const initialUpdate = {
+    title: capstone?.title,
+    description: capstone?.description,
+    website: capstone?.website,
+    tags: capstone?.tags,
   };
 
   const [imageError, setImageError] = useState('');
@@ -124,40 +156,94 @@ const Capstone = () => {
     });
   };
 
-  const addCapstone = (values, {resetForm}) => {
+  const submit = (values, {resetForm}) => {
     setIsLoading(true);
-    const imagesHolder = [...images];
-    imagesHolder.shift();
-    const holder = imagesHolder.filter(image => !isEmpty(image));
-    const isLogoEmpty = isEmpty(images[0]);
 
-    if (isLogoEmpty || holder.length <= 0) {
-      setImageError('Logo/Images is required');
-      setIsLoading(false);
-    } else {
-      const formData = new FormData();
-      formData.append('title', values.title);
-      formData.append('description', values.description);
-      formData.append('website', values.website);
-      values.tags.forEach(tag => {
-        formData.append('tags', tag);
-      });
-      formData.append('professor', authenticatedUser.professor);
-      formData.append('uploaded_by', authenticatedUser._id);
-      values.documents.forEach((document, index) => {
-        if (!isEmpty(document.path)) {
-          formData.append(`chapter ${index + 1}`, {
-            uri: document.path,
-            type: 'application/pdf',
-            name: `sample-${index}.pdf`,
+    if (isEqual(action, 'Add')) {
+      const imagesHolder = [...images];
+      imagesHolder.shift();
+      const holder = imagesHolder.filter(image => !isEmpty(image));
+      const isLogoEmpty = isEmpty(images[0]);
+
+      if (isLogoEmpty || holder.length <= 0) {
+        setImageError('Logo/Images is required');
+        setIsLoading(false);
+      } else {
+        const formData = new FormData();
+        formData.append('title', values.title);
+        formData.append('description', values.description);
+        formData.append('website', values.website);
+        values.tags.forEach(tag => {
+          formData.append('tags', tag);
+        });
+        formData.append('professor', authenticatedUser.professor);
+        formData.append('uploaded_by', authenticatedUser._id);
+        values.documents.forEach((document, index) => {
+          if (!isEmpty(document.path)) {
+            formData.append(`chapter ${index + 1}`, {
+              uri: document.path,
+              type: 'application/pdf',
+              name: `sample-${index}.pdf`,
+            });
+          }
+        });
+        formData.append('logo', {
+          uri: images[0],
+          type: 'image/png',
+          name: 'sample.png',
+        });
+        holder.forEach(item => {
+          formData.append('images', {
+            uri: item,
+            type: 'image/png',
+            name: 'sample.png',
           });
-        }
-      });
-      formData.append('logo', {
-        uri: images[0],
-        type: 'image/png',
-        name: 'sample.png',
-      });
+        });
+        addCapstoneRequest(formData, authenticatedUser.token)
+          .then(() => {
+            setIsLoading(false);
+            toast.show({
+              render: () => {
+                return (
+                  <Toast
+                    type="success"
+                    message="Capstone have been successfully uploaded."
+                  />
+                );
+              },
+            });
+            setImages(['', '', '', '']);
+            resetForm();
+          })
+          .catch(() => {
+            toast.show({
+              render: () => {
+                return (
+                  <Toast
+                    type="error"
+                    message="Something went wrong. Please try again."
+                  />
+                );
+              },
+            });
+            setIsLoading(false);
+          });
+      }
+    } else {
+      const imagesHolder = [...images];
+      imagesHolder.shift();
+      const holder = imagesHolder.filter(
+        image => !isUrl(image) && !isEmpty(image),
+      );
+      const formData = new FormData();
+
+      if (!isUrl(images[0])) {
+        formData.append('logo', {
+          uri: images[0],
+          type: 'image/png',
+          name: 'sample.png',
+        });
+      }
       holder.forEach(item => {
         formData.append('images', {
           uri: item,
@@ -165,7 +251,20 @@ const Capstone = () => {
           name: 'sample.png',
         });
       });
-      addCapstoneRequest(formData, authenticatedUser.token)
+
+      formData.append('title', values.title);
+      formData.append('description', values.description);
+      formData.append('website', values.website);
+      formData.append('initialLogo', images[0]);
+      imagesHolder.forEach(image => {
+        formData.append('initialImages', image);
+      });
+      values.tags.forEach(tag => {
+        formData.append('tags', tag);
+      });
+      formData.append('id', capstone?._id);
+
+      updateCapstoneRequest(formData, authenticatedUser.token)
         .then(() => {
           setIsLoading(false);
           toast.show({
@@ -173,13 +272,12 @@ const Capstone = () => {
               return (
                 <Toast
                   type="success"
-                  message="Capstone have been successfully uploaded."
+                  message="Capstone have been successfully updated."
                 />
               );
             },
           });
-          setImages(['', '', '', '']);
-          resetForm();
+          navigation.goBack();
         })
         .catch(() => {
           toast.show({
@@ -199,7 +297,7 @@ const Capstone = () => {
 
   return (
     <Box flex={1} justifyContent="center" alignItems="center">
-      <AppBar title="Add Capstone" />
+      <AppBar title={`${action} Capstone`} />
       <Box w="90%">
         <FormControl mt={3}>
           <FormControl.Label isRequired>Images</FormControl.Label>
@@ -226,14 +324,16 @@ const Capstone = () => {
                       {isEqual(index, 0) ? 'Add Logo' : 'Add Image'}
                     </Button>
                   ) : (
-                    <Image
-                      h={150}
-                      w={150}
-                      source={{
-                        uri: image,
-                      }}
-                      alt="images"
-                    />
+                    <Pressable onPress={() => handlePressImage(index)}>
+                      <Image
+                        h={150}
+                        w={150}
+                        source={{
+                          uri: image,
+                        }}
+                        alt="images"
+                      />
+                    </Pressable>
                   )}
                 </Box>
               ))}
@@ -251,9 +351,9 @@ const Capstone = () => {
       </Box>
 
       <Formik
-        initialValues={initial}
-        onSubmit={addCapstone}
-        validationSchema={schema}>
+        initialValues={isEqual(action, 'Update') ? initialUpdate : initial}
+        onSubmit={submit}
+        validationSchema={isEqual(action, 'Update') ? schemaUpdate : schema}>
         {({handleChange, handleSubmit, values, errors, setFieldValue}) => (
           <ScrollView w="90%">
             <VStack>
@@ -340,47 +440,48 @@ const Capstone = () => {
                   </HStack>
                 )}
               </FormControl>
-              {values.documents.map((document, index) => (
-                <FormControl>
-                  <FormControl.Label>{`Chapter ${
-                    index + 1
-                  }`}</FormControl.Label>
-                  <Box
-                    flex={1}
-                    h="45"
-                    bg="white"
-                    borderColor="gray.300"
-                    borderWidth={1}
-                    borderRadius="sm">
-                    <HStack h="10" alignItems="center">
-                      <Pressable
-                        onPress={() =>
-                          handleDocumentSelection(
-                            setFieldValue,
-                            values.documents,
-                            index,
-                          )
-                        }>
-                        <Box
-                          alignItems="center"
-                          justifyContent="center"
-                          bg="primary.500"
-                          m={2}
-                          borderRadius="sm">
-                          <Text paddingX={1} color="white">
-                            Choose file
-                          </Text>
-                        </Box>
-                      </Pressable>
-                      <Text color="gray.600">
-                        {isEmpty(values.documents[index].fileName)
-                          ? 'No file chosen'
-                          : values.documents[index].fileName}
-                      </Text>
-                    </HStack>
-                  </Box>
-                </FormControl>
-              ))}
+              {isEqual(action, 'Add') &&
+                values.documents.map((document, index) => (
+                  <FormControl>
+                    <FormControl.Label>{`Chapter ${
+                      index + 1
+                    }`}</FormControl.Label>
+                    <Box
+                      flex={1}
+                      h="45"
+                      bg="white"
+                      borderColor="gray.300"
+                      borderWidth={1}
+                      borderRadius="sm">
+                      <HStack h="10" alignItems="center">
+                        <Pressable
+                          onPress={() =>
+                            handleDocumentSelection(
+                              setFieldValue,
+                              values.documents,
+                              index,
+                            )
+                          }>
+                          <Box
+                            alignItems="center"
+                            justifyContent="center"
+                            bg="primary.500"
+                            m={2}
+                            borderRadius="sm">
+                            <Text paddingX={1} color="white">
+                              Choose file
+                            </Text>
+                          </Box>
+                        </Pressable>
+                        <Text color="gray.600">
+                          {isEmpty(values.documents[index].fileName)
+                            ? 'No file chosen'
+                            : values.documents[index].fileName}
+                        </Text>
+                      </HStack>
+                    </Box>
+                  </FormControl>
+                ))}
             </VStack>
             <Button
               isLoading={isLoading}
@@ -391,7 +492,7 @@ const Capstone = () => {
               bg="primary.500"
               alignSelf="center"
               onPress={handleSubmit}>
-              Add Capstone
+              {`${action} Capstone`}
             </Button>
           </ScrollView>
         )}

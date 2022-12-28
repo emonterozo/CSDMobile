@@ -4,6 +4,7 @@ export const API = {
   GET_TYPES: '/types',
   GET_TAGS: '/tags',
   ADD_CAPSTONE: '/capstone/add',
+  UPDATE_CAPSTONE: '/capstone/update',
   GET_CAPSTONES: '/capstone/list',
   GET_ASSIGNED: '/capstone/assigned/',
   GET_OWNED: '/capstone/owned/',

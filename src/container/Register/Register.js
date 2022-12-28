@@ -21,11 +21,16 @@ import ImagePicker from 'react-native-image-crop-picker';
 import {Formik} from 'formik';
 import * as Yup from 'yup';
 
-import {getTypes, registerRequest} from '../../services/request';
+import {
+  getProfessorsRequest,
+  getTypes,
+  registerRequest,
+} from '../../services/request';
 import {isEmpty, isNull} from 'lodash';
 import GlobalContext from '../../config/context';
 import {setUser} from '../../utils/utils';
 import {Toast} from '../../components';
+import {isEqual} from 'lodash';
 
 const schema = Yup.object().shape({
   firstName: Yup.string()
@@ -50,6 +55,7 @@ const schema = Yup.object().shape({
     .oneOf([Yup.ref('password'), null], 'Passwords must match')
     .required('This field is required'),
   type: Yup.string().required('This field is required'),
+  professor: Yup.string().required('This field is required').nullable(true),
   attachment: Yup.string().required('This field is required'),
 });
 
@@ -61,12 +67,15 @@ const initial = {
   password: '',
   confirmPassword: '',
   type: '',
+  professor: '',
   attachment: '',
 };
 
 const Register = ({navigation}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [types, setTypes] = useState([]);
+  const [professors, setProfessors] = useState([]);
+  const [studentKey, setStudentKey] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
     useState(false);
@@ -75,7 +84,12 @@ const Register = ({navigation}) => {
   useEffect(() => {
     getTypes().then(response => {
       setTypes(response.types);
+      const student = response.types.filter(
+        type => type.description === 'Student',
+      );
+      setStudentKey(student[0]._id);
     });
+    getProfessorsRequest().then(response => setProfessors(response.professors));
   }, []);
 
   const register = (values, {setFieldError, resetForm}) => {
@@ -87,6 +101,10 @@ const Register = ({navigation}) => {
     formData.append('last_name', values.lastName);
     formData.append('email', values.email);
     formData.append('type_id', values.type);
+    formData.append(
+      'professor_id',
+      isEqual(values.type, studentKey) ? values.professor : '',
+    );
     formData.append('attachment', {
       uri: values.attachment,
       type: 'image/png',
@@ -314,7 +332,12 @@ const Register = ({navigation}) => {
                   _selectedItem={{
                     bg: 'primary.400',
                   }}
-                  onValueChange={handleChange('type')}>
+                  onValueChange={value => {
+                    setFieldValue('type', value);
+                    if (!isEqual(value, studentKey)) {
+                      setFieldValue('professor', 'professor');
+                    }
+                  }}>
                   {types?.map(item => (
                     <Select.Item
                       key={item._id}
@@ -329,6 +352,30 @@ const Register = ({navigation}) => {
                   {errors.type}
                 </FormControl.ErrorMessage>
               </FormControl>
+              {isEqual(values.type, studentKey) && (
+                <FormControl isInvalid={'professor' in errors}>
+                  <Select
+                    selectedValue={values.professor}
+                    placeholder="Choose Professor"
+                    _selectedItem={{
+                      bg: 'primary.400',
+                    }}
+                    onValueChange={handleChange('professor')}>
+                    {professors?.map(item => (
+                      <Select.Item
+                        key={item._id}
+                        label={item.description}
+                        value={item._id}
+                      />
+                    ))}
+                  </Select>
+                  <FormControl.ErrorMessage
+                    ml="3"
+                    leftIcon={<WarningOutlineIcon size="xs" />}>
+                    {errors.professor}
+                  </FormControl.ErrorMessage>
+                </FormControl>
+              )}
               <FormControl>
                 <Button
                   variant="outline"

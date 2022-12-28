@@ -40,9 +40,9 @@ export const getTypes = async () => {
     });
 };
 
-export const getTagsProfessorRequest = async token => {
+export const getTagsRequest = async token => {
   return axios
-    .get(SERVER_URL + API.GET_TAGS_PROFESSOR, {
+    .get(SERVER_URL + API.GET_TAGS, {
       headers: authorization(token),
     })
     .then(response => response.data)
@@ -69,6 +69,24 @@ export const addCapstoneRequest = async (payload, token) => {
 export const getCapstonesRequest = async () => {
   return axios
     .get(SERVER_URL + API.GET_CAPSTONES)
+    .then(response => response.data)
+    .catch(error => {
+      throw error;
+    });
+};
+
+export const getCapstonesAssignedRequest = async id => {
+  return axios
+    .get(SERVER_URL + API.GET_ASSIGNED + id)
+    .then(response => response.data)
+    .catch(error => {
+      throw error;
+    });
+};
+
+export const getCapstonesOwnedRequest = async id => {
+  return axios
+    .get(SERVER_URL + API.GET_OWNED + id)
     .then(response => response.data)
     .catch(error => {
       throw error;
@@ -143,6 +161,30 @@ export const getCommentsRequest = async id => {
 export const getCapstoneRequest = async id => {
   return axios
     .get(SERVER_URL + API.GET_CAPSTONE + id)
+    .then(response => response.data)
+    .catch(error => {
+      throw error;
+    });
+};
+
+export const getProfessorsRequest = async () => {
+  return axios
+    .get(SERVER_URL + API.GET_PROFESSORS)
+    .then(response => response.data)
+    .catch(error => {
+      throw error;
+    });
+};
+
+export const uploadDocumentRequest = async (payload, token) => {
+  return axios
+    .post(SERVER_URL + API.UPLOAD_DOCUMENT, payload, {
+      headers: {
+        ...authorization(token),
+        Accept: 'application/json',
+        'Content-Type': 'multipart/form-data',
+      },
+    })
     .then(response => response.data)
     .catch(error => {
       throw error;

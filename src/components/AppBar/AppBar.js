@@ -1,5 +1,13 @@
 import React, {useContext} from 'react';
-import {StatusBar, HStack, Box, IconButton, Icon, Text} from 'native-base';
+import {
+  StatusBar,
+  HStack,
+  Box,
+  IconButton,
+  Icon,
+  Text,
+  Button,
+} from 'native-base';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import GlobalContext from '../../config/context';
@@ -10,6 +18,11 @@ const AppBar = ({
   isLogoutVisible,
   isCommentVisible,
   handlePressComment,
+  isBackVisible,
+  handlePressBack,
+  isButtonVisible,
+  handlePressDeclined,
+  handlePressApproved,
 }) => {
   const {setAuthenticatedUser} = useContext(GlobalContext);
   const handlePressLogout = () => {
@@ -33,9 +46,48 @@ const AppBar = ({
           w="100%"
           alignItems="center"
           justifyContent="space-between">
-          <Text color="white" fontSize="20" fontWeight="bold">
-            {title}
-          </Text>
+          <HStack alignItems="center">
+            {isBackVisible && (
+              <IconButton
+                icon={
+                  <Icon
+                    as={MaterialCommunityIcons}
+                    name="arrow-left"
+                    size="md"
+                    color="white"
+                  />
+                }
+                onPress={handlePressBack}
+              />
+            )}
+            <Text color="white" fontSize="20" fontWeight="bold">
+              {title}
+            </Text>
+          </HStack>
+          {isButtonVisible && (
+            <HStack>
+              <Button
+                variant="ghost"
+                _text={{
+                  color: 'white',
+                  fontWeight: 'bold',
+                  textDecorationLine: 'underline',
+                }}
+                onPress={handlePressApproved}>
+                APPROVE
+              </Button>
+              <Button
+                variant="ghost"
+                _text={{
+                  color: 'white',
+                  fontWeight: 'bold',
+                  textDecorationLine: 'underline',
+                }}
+                onPress={handlePressDeclined}>
+                DECLINE
+              </Button>
+            </HStack>
+          )}
           {isLogoutVisible && (
             <IconButton
               icon={

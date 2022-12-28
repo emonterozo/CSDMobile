@@ -22,24 +22,22 @@ import * as Yup from 'yup';
 
 import {AppBar, Toast} from '../../components';
 import {isEmpty, isEqual} from 'lodash';
-import {
-  addCapstoneRequest,
-  getTagsProfessorRequest,
-} from '../../services/request';
+import {addCapstoneRequest, getTagsRequest} from '../../services/request';
 import GlobalContext from '../../config/context';
 
 const schema = Yup.object().shape({
   title: Yup.string().required('This field is required'),
   description: Yup.string().required('This field is required'),
   website: Yup.string().required('This field is required'),
-  document: Yup.object().shape({
-    fileName: Yup.string().required('This field is required'),
-    path: Yup.string().required('This field is required'),
-  }),
+  documents: Yup.array(
+    Yup.object().shape({
+      fileName: Yup.string(),
+      path: Yup.string(),
+    }),
+  ),
   tags: Yup.array()
     .min(1, 'This field is required')
     .required('This field is required'),
-  professor: Yup.string().required('This field is required'),
 });
 
 const Capstone = () => {
@@ -56,43 +54,60 @@ const Capstone = () => {
     title: '',
     description: '',
     website: '',
-    document: {
-      fileName: '',
-      path: '',
-    },
+    documents: [
+      {
+        fileName: '',
+        path: '',
+      },
+      {
+        fileName: '',
+        path: '',
+      },
+      {
+        fileName: '',
+        path: '',
+      },
+      {
+        fileName: '',
+        path: '',
+      },
+      {
+        fileName: '',
+        path: '',
+      },
+    ],
     tags: [],
-    professor: '',
   };
 
   const [imageError, setImageError] = useState('');
 
-  const handleDocumentSelection = useCallback(async setFieldValue => {
-    try {
-      const response = await DocumentPicker.pick({
-        presentationStyle: 'fullScreen',
-        type: [types.pdf],
-      });
-      setFieldValue('document', {
-        fileName: response[0].name,
-        path: response[0].uri,
-      });
-    } catch (err) {
-      console.warn(err);
-    }
-  }, []);
+  const handleDocumentSelection = useCallback(
+    async (setFieldValue, documents, index) => {
+      try {
+        const response = await DocumentPicker.pick({
+          presentationStyle: 'fullScreen',
+          type: [types.pdf],
+        });
+        const documentsHolder = documents.map((document, i) =>
+          i === index
+            ? {fileName: response[0].name, path: response[0].uri}
+            : document,
+        );
+        setFieldValue('documents', documentsHolder);
+      } catch (err) {
+        console.warn(err);
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
-    getTagsProfessorRequest(authenticatedUser.token).then(res => {
+    getTagsRequest(authenticatedUser.token).then(res => {
       const tagsList = res?.tags.map(item => ({
         label: item.description,
         value: item._id,
       }));
-      const professorList = res?.professor.map(item => ({
-        label: item.name,
-        value: item._id,
-      }));
       setListOfTags(tagsList);
-      setListOfProfessor(professorList);
     });
   }, []);
 
@@ -127,12 +142,16 @@ const Capstone = () => {
       values.tags.forEach(tag => {
         formData.append('tags', tag);
       });
-      formData.append('professor', values.professor);
+      formData.append('professor', authenticatedUser.professor);
       formData.append('uploaded_by', authenticatedUser._id);
-      formData.append('document', {
-        uri: values.document.path,
-        type: 'application/pdf',
-        name: 'sample.pdf',
+      values.documents.forEach((document, index) => {
+        if (!isEmpty(document.path)) {
+          formData.append(`chapter ${index + 1}`, {
+            uri: document.path,
+            type: 'application/pdf',
+            name: `sample-${index}.pdf`,
+          });
+        }
       });
       formData.append('logo', {
         uri: images[0],
@@ -289,45 +308,6 @@ const Capstone = () => {
                 </FormControl.ErrorMessage>
               </FormControl>
               <FormControl>
-                <FormControl.Label isRequired>Documents</FormControl.Label>
-                <Box
-                  flex={1}
-                  h="45"
-                  bg="white"
-                  borderColor="gray.300"
-                  borderWidth={1}
-                  borderRadius="sm">
-                  <HStack h="10" alignItems="center">
-                    <Pressable
-                      onPress={() => handleDocumentSelection(setFieldValue)}>
-                      <Box
-                        alignItems="center"
-                        justifyContent="center"
-                        bg="primary.500"
-                        m={2}
-                        borderRadius="sm">
-                        <Text paddingX={1} color="white">
-                          Choose file
-                        </Text>
-                      </Box>
-                    </Pressable>
-                    <Text color="gray.600">
-                      {isEmpty(values.document.fileName)
-                        ? 'No file chosen'
-                        : values.document.fileName}
-                    </Text>
-                  </HStack>
-                </Box>
-                {!isEmpty(errors.document?.fileName) && (
-                  <HStack alignItems="center" space={1} ml={3} mt={2}>
-                    <WarningOutlineIcon size={3} color="error.600" />
-                    <Text fontSize="xs" color="error.600">
-                      {errors.document.fileName}
-                    </Text>
-                  </HStack>
-                )}
-              </FormControl>
-              <FormControl>
                 <FormControl.Label isRequired>Tags</FormControl.Label>
                 <DropDownPicker
                   multiple
@@ -360,33 +340,47 @@ const Capstone = () => {
                   </HStack>
                 )}
               </FormControl>
-              <FormControl>
-                <FormControl.Label isRequired>Professor</FormControl.Label>
-                <DropDownPicker
-                  open={isProfPickerOpen}
-                  value={values.professor}
-                  items={listOfProfessor}
-                  setItems={setListOfProfessor}
-                  setOpen={setIsProfPickerOpen}
-                  onSelectItem={item => {
-                    setFieldValue('professor', item.value);
-                  }}
-                  listMode="MODAL"
-                  searchable
-                  placeholder="Select professor"
-                  searchPlaceholder="Search professor"
-                  style={styles.dropdown}
-                  placeholderStyle={styles.placeholder}
-                />
-                {!isEmpty(errors.professor) && (
-                  <HStack alignItems="center" space={1} ml={3} mt={2}>
-                    <WarningOutlineIcon size={3} color="error.600" />
-                    <Text fontSize="xs" color="error.600">
-                      {errors.professor}
-                    </Text>
-                  </HStack>
-                )}
-              </FormControl>
+              {values.documents.map((document, index) => (
+                <FormControl>
+                  <FormControl.Label>{`Chapter ${
+                    index + 1
+                  }`}</FormControl.Label>
+                  <Box
+                    flex={1}
+                    h="45"
+                    bg="white"
+                    borderColor="gray.300"
+                    borderWidth={1}
+                    borderRadius="sm">
+                    <HStack h="10" alignItems="center">
+                      <Pressable
+                        onPress={() =>
+                          handleDocumentSelection(
+                            setFieldValue,
+                            values.documents,
+                            index,
+                          )
+                        }>
+                        <Box
+                          alignItems="center"
+                          justifyContent="center"
+                          bg="primary.500"
+                          m={2}
+                          borderRadius="sm">
+                          <Text paddingX={1} color="white">
+                            Choose file
+                          </Text>
+                        </Box>
+                      </Pressable>
+                      <Text color="gray.600">
+                        {isEmpty(values.documents[index].fileName)
+                          ? 'No file chosen'
+                          : values.documents[index].fileName}
+                      </Text>
+                    </HStack>
+                  </Box>
+                </FormControl>
+              ))}
             </VStack>
             <Button
               isLoading={isLoading}

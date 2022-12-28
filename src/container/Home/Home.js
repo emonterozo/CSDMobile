@@ -21,7 +21,11 @@ import {AppBar} from '../../components';
 import GlobalContext from '../../config/context';
 import {isEqual} from 'lodash';
 import {GUEST, STUDENT} from '../../utils/constant';
-import {getCapstonesRequest} from '../../services/request';
+import {
+  getCapstonesAssignedRequest,
+  getCapstonesOwnedRequest,
+  getCapstonesRequest,
+} from '../../services/request';
 import {getRatings} from '../../utils/utils';
 
 const Home = ({navigation}) => {
@@ -31,25 +35,21 @@ const Home = ({navigation}) => {
   const [capstones, setCapstones] = useState([]);
 
   useEffect(() => {
-    getCapstonesRequest().then(res => {
-      if (isEqual(selected, 2)) {
-        let holder = [];
-        if (
-          isEqual(authenticatedUser?.type.description.toLowerCase(), STUDENT)
-        ) {
-          holder = res.capstones.filter(item =>
-            isEqual(authenticatedUser?._id, item.uploaded_by._id),
-          );
-        } else {
-          holder = res.capstones.filter(item =>
-            isEqual(authenticatedUser?._id, item.approver._id),
-          );
-        }
-        setCapstones(holder);
-      } else {
+    if (isEqual(selected, 1)) {
+      getCapstonesRequest().then(res => {
         setCapstones(res.capstones);
+      });
+    } else {
+      if (isEqual(authenticatedUser?.type.description.toLowerCase(), STUDENT)) {
+        getCapstonesOwnedRequest(authenticatedUser?._id).then(res => {
+          setCapstones(res.capstones);
+        });
+      } else {
+        getCapstonesAssignedRequest(authenticatedUser?._id).then(res => {
+          setCapstones(res.capstones);
+        });
       }
-    });
+    }
   }, [isFocused, selected]);
 
   return (

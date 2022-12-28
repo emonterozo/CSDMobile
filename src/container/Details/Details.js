@@ -44,10 +44,7 @@ const Details = ({navigation, route}) => {
   const [isDescriptionModalVisible, setIsDescriptionModalVisible] =
     useState(false);
   const [isRateModalVisible, setIsRateModalVisible] = useState(false);
-  const [isPercentageModalVisible, setIsPercentageModalVisible] =
-    useState(false);
   const [rating, setRating] = useState(1);
-  const [percentage, setPercentage] = useState('0');
   const [isLoading, setIsLoading] = useState(false);
   const [capstone, setCapstone] = useState(null);
 
@@ -60,7 +57,6 @@ const Details = ({navigation, route}) => {
       );
       setRating(rates.length ? rates[0].rating : 1);
       setCapstone(res.capstone);
-      setPercentage(res.capstone.percentage.toString());
     });
   };
 
@@ -81,23 +77,7 @@ const Details = ({navigation, route}) => {
         setIsLoading(false);
         getCapstone();
       })
-      .catch(() => setIsPercentageModalVisible(false));
-  };
-
-  const handlePressSubmitPercentage = () => {
-    setIsLoading(true);
-    const payload = {
-      id: capstone._id,
-      percentage: parseInt(percentage, 10),
-    };
-
-    updatePercentageRequest(payload, authenticatedUser.token)
-      .then(() => {
-        setIsPercentageModalVisible(false);
-        setIsLoading(false);
-        getCapstone();
-      })
-      .catch(() => setIsPercentageModalVisible(false));
+      .catch(() => setIsRateModalVisible(false));
   };
 
   const handlePressWebsite = () => {
@@ -154,32 +134,6 @@ const Details = ({navigation, route}) => {
               w="full"
               bg="primary.500"
               onPress={handlePressSubmitRating}>
-              Submit
-            </Button>
-          </Modal.Footer>
-        </Modal.Content>
-      </Modal>
-      <Modal
-        isOpen={isPercentageModalVisible}
-        onClose={() => setIsPercentageModalVisible(false)}>
-        <Modal.Content>
-          <Modal.CloseButton />
-          <Modal.Header>Percentage</Modal.Header>
-          <Modal.Body>
-            <Input
-              placeholder="Input Percentage"
-              w="full"
-              value={percentage}
-              onChangeText={text => setPercentage(text)}
-              keyboardType="numeric"
-            />
-          </Modal.Body>
-          <Modal.Footer>
-            <Button
-              isLoading={isLoading}
-              w="full"
-              bg="primary.500"
-              onPress={handlePressSubmitPercentage}>
               Submit
             </Button>
           </Modal.Footer>
@@ -263,11 +217,11 @@ const Details = ({navigation, route}) => {
                       </Heading>
                       <Button
                         variant="link"
-                        onPress={() =>
+                        onPress={() => {
                           navigation.navigate('Documents', {
-                            documents: capstone?.documents,
-                          })
-                        }>
+                            id: capstone?._id,
+                          });
+                        }}>
                         View documents
                       </Button>
                     </HStack>
@@ -311,13 +265,6 @@ const Details = ({navigation, route}) => {
                       Rate
                     </Button>
                   )}
-                {isEqual(authenticatedUser._id, capstone?.approver._id) && (
-                  <Button
-                    bg="cyan.900"
-                    onPress={() => setIsPercentageModalVisible(true)}>
-                    Percentage
-                  </Button>
-                )}
               </VStack>
               <Box mx={2} mb={2} alignItems="flex-end">
                 <Text

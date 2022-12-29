@@ -205,7 +205,7 @@ const Documents = ({route}) => {
                   as={MaterialCommunityIcons}
                   name="file-upload-outline"
                   size="6xl"
-                  color="gray"
+                  color="gray.500"
                 />
               }
               onPress={() => handleDocumentSelection(title)}
@@ -218,7 +218,7 @@ const Documents = ({route}) => {
               as={MaterialCommunityIcons}
               name="alert-circle-outline"
               size="6xl"
-              color="gray"
+              color="gray.500"
             />
             <Text italic>No Available Document</Text>
           </Box>

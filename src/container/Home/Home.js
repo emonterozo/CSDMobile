@@ -13,6 +13,7 @@ import {
   FlatList,
   Pressable,
   Fab,
+  Spinner,
 } from 'native-base';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useIsFocused} from '@react-navigation/native';
@@ -33,19 +34,24 @@ const Home = ({navigation}) => {
   const {authenticatedUser} = useContext(GlobalContext);
   const [selected, setSelected] = useState(1);
   const [capstones, setCapstones] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    setIsLoading(true);
     if (isEqual(selected, 1)) {
       getCapstonesRequest().then(res => {
+        setIsLoading(false);
         setCapstones(res.capstones);
       });
     } else {
       if (isEqual(authenticatedUser?.type.description.toLowerCase(), STUDENT)) {
         getCapstonesOwnedRequest(authenticatedUser?._id).then(res => {
+          setIsLoading(false);
           setCapstones(res.capstones);
         });
       } else {
         getCapstonesAssignedRequest(authenticatedUser?._id).then(res => {
+          setIsLoading(false);
           setCapstones(res.capstones);
         });
       }
@@ -55,58 +61,68 @@ const Home = ({navigation}) => {
   return (
     <Box flex={1}>
       <AppBar title="Home" isLogoutVisible />
-      <Box flex={1}>
-        <FlatList
-          data={capstones}
-          numColumns={2}
-          renderItem={({item}) => (
-            <Box m="0.5" flex={1} maxWidth="50%">
-              <Pressable
-                onPress={() =>
-                  navigation.navigate('Details', {id: item._id, capstone: item})
-                }>
-                <Box
-                  rounded="lg"
-                  overflow="hidden"
-                  borderColor="coolGray.300"
-                  borderWidth="1">
-                  <Box>
-                    <AspectRatio w="100%" ratio={16 / 9}>
-                      <Image
-                        source={{
-                          uri: item.logo,
-                        }}
-                        alt="image"
-                      />
-                    </AspectRatio>
-                  </Box>
-                  <Stack p="4" space={2}>
-                    <Stack space={1}>
-                      <Heading size="md" numberOfLines={2}>
-                        {item.title}
-                      </Heading>
-                      <Text
-                        fontSize="sm"
-                        color="violet.500"
-                        fontWeight="500"
-                        ml="-0.5"
-                        mt="-1">
-                        {`${getRatings(item.ratings).ratings} stars`}
-                      </Text>
+      {isLoading ? (
+        <Center flex={1}>
+          <Spinner size="lg" color="primary.400" />
+        </Center>
+      ) : (
+        <Box flex={1}>
+          <FlatList
+            data={capstones}
+            numColumns={2}
+            renderItem={({item}) => (
+              <Box m="0.5" flex={1} maxWidth="50%">
+                <Pressable
+                  onPress={() =>
+                    navigation.navigate('Details', {
+                      id: item._id,
+                      capstone: item,
+                    })
+                  }>
+                  <Box
+                    rounded="lg"
+                    overflow="hidden"
+                    borderColor="coolGray.300"
+                    borderWidth="1">
+                    <Box>
+                      <AspectRatio w="100%" ratio={16 / 9}>
+                        <Image
+                          source={{
+                            uri: item.logo,
+                          }}
+                          alt="image"
+                        />
+                      </AspectRatio>
+                    </Box>
+                    <Stack p="4" space={2}>
+                      <Stack space={1}>
+                        <Heading size="md" numberOfLines={2}>
+                          {item.title}
+                        </Heading>
+                        <Text
+                          fontSize="sm"
+                          color="violet.500"
+                          fontWeight="500"
+                          ml="-0.5"
+                          mt="-1">
+                          {`${getRatings(item.ratings).ratings} stars`}
+                        </Text>
+                      </Stack>
                     </Stack>
-                  </Stack>
-                </Box>
-              </Pressable>
-            </Box>
-          )}
-          contentContainerStyle={styles.list}
-          ListEmptyComponent={
-            <Center flexGrow={1}>
-              <Text bold>No available data</Text>
-            </Center>
-          }
-        />
-      </Box>
+                  </Box>
+                </Pressable>
+              </Box>
+            )}
+            contentContainerStyle={styles.list}
+            ListEmptyComponent={
+              <Center flexGrow={1}>
+                <Text bold>No available data</Text>
+              </Center>
+            }
+          />
+        </Box>
+      )}
+
       {!isEqual(authenticatedUser?.type.description, GUEST) && (
         <Box bg="white" width="100%" alignSelf="center">
           <HStack

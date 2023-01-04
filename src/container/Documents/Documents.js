@@ -10,6 +10,7 @@ import {
   Center,
   Spinner,
   useToast,
+  CircleIcon,
 } from 'native-base';
 import {StyleSheet, Dimensions} from 'react-native';
 import Pdf from 'react-native-pdf';
@@ -24,6 +25,7 @@ import {
   updatePercentageRequest,
   uploadDocumentRequest,
 } from '../../services/request';
+import {STATUSES} from '../../utils/constant';
 
 const Documents = ({route}) => {
   const {authenticatedUser} = useContext(GlobalContext);
@@ -163,10 +165,14 @@ const Documents = ({route}) => {
           });
           setTitle('Documents');
         }}
-        isButtonVisible={
-          isEqual(selectedDocument.status, 'pending') &&
-          isEqual(authenticatedUser._id, approver) &&
-          !isLoading
+        isButtonVisible={isEqual(authenticatedUser._id, approver) && !isLoading}
+        isApproveVisible={
+          isEqual(selectedDocument.status, 'declined') ||
+          isEqual(selectedDocument.status, 'pending')
+        }
+        isDeclineVisible={
+          isEqual(selectedDocument.status, 'approved') ||
+          isEqual(selectedDocument.status, 'pending')
         }
         handlePressApproved={() => updateDocument('approved')}
         handlePressDeclined={() => updateDocument('declined')}
@@ -177,14 +183,46 @@ const Documents = ({route}) => {
         </Center>
       ) : isNull(selectedDocument.path) ? (
         <Box flex={1} marginTop={30} marginX={5}>
+          <HStack
+            alignItems="center"
+            justifyContent="center"
+            flexWrap="wrap"
+            space={3}
+            marginY={3}>
+            <HStack alignItems="center" space={1}>
+              <CircleIcon color="yellow.500" />
+              <Text>Pending</Text>
+            </HStack>
+            <HStack alignItems="center" space={1}>
+              <CircleIcon color="green.500" />
+              <Text>Approved</Text>
+            </HStack>
+            <HStack alignItems="center" space={1}>
+              <CircleIcon color="red.500" />
+              <Text>Declined</Text>
+            </HStack>
+            <HStack alignItems="center" space={1}>
+              <CircleIcon color="gray.500" />
+              <Text>Document Unavailable</Text>
+            </HStack>
+          </HStack>
           {documents.map((item, index) => (
             <Button
               key={item._id}
               marginY={1}
-              bg={isEmpty(item.path) ? 'gray.400' : 'primary.500'}
+              leftIcon={
+                <CircleIcon
+                  color={
+                    isEmpty(item.path) ? 'gray.500' : STATUSES[item.status]
+                  }
+                />
+              }
+              variant="outline"
               _text={{
                 fontWeight: 'bold',
+                color: 'primary.600',
               }}
+              borderColor="primary.400"
               onPress={() => {
                 setSelectedDocument({
                   path: item.path,

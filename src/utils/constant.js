@@ -9,3 +9,9 @@ export const GUEST_USER = {
     description: GUEST,
   },
 };
+
+export const STATUSES = {
+  pending: 'yellow.500',
+  approved: 'green.500',
+  declined: 'red.500',
+};

@@ -21,6 +21,8 @@ const AppBar = ({
   isBackVisible,
   handlePressBack,
   isButtonVisible,
+  isDeclineVisible,
+  isApproveVisible,
   handlePressDeclined,
   handlePressApproved,
 }) => {
@@ -66,26 +68,30 @@ const AppBar = ({
           </HStack>
           {isButtonVisible && (
             <HStack>
-              <Button
-                variant="ghost"
-                _text={{
-                  color: 'white',
-                  fontWeight: 'bold',
-                  textDecorationLine: 'underline',
-                }}
-                onPress={handlePressApproved}>
-                APPROVE
-              </Button>
-              <Button
-                variant="ghost"
-                _text={{
-                  color: 'white',
-                  fontWeight: 'bold',
-                  textDecorationLine: 'underline',
-                }}
-                onPress={handlePressDeclined}>
-                DECLINE
-              </Button>
+              {isApproveVisible && (
+                <Button
+                  variant="ghost"
+                  _text={{
+                    color: 'white',
+                    fontWeight: 'bold',
+                    textDecorationLine: 'underline',
+                  }}
+                  onPress={handlePressApproved}>
+                  APPROVE
+                </Button>
+              )}
+              {isDeclineVisible && (
+                <Button
+                  variant="ghost"
+                  _text={{
+                    color: 'white',
+                    fontWeight: 'bold',
+                    textDecorationLine: 'underline',
+                  }}
+                  onPress={handlePressDeclined}>
+                  DECLINE
+                </Button>
+              )}
             </HStack>
           )}
           {isLogoutVisible && (

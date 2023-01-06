@@ -16,4 +16,5 @@ export const API = {
   GET_CAPSTONE: '/capstone/list/',
   GET_PROFESSORS: '/professors',
   UPLOAD_DOCUMENT: '/capstone/upload_document',
+  UPDATE_USER: '/user/update',
 };

@@ -12,6 +12,7 @@ import {
   Capstone,
   Documents,
   Comments,
+  Account,
 } from '../container';
 import GlobalContext from '../config/context';
 import {getUser} from '../utils/utils';
@@ -44,6 +45,7 @@ const Navigation = () => {
       ) : (
         <HomeStack.Navigator screenOptions={{headerShown: false}}>
           <HomeStack.Screen name="Home" component={Home} />
+          <HomeStack.Screen name="Account" component={Account} />
           <HomeStack.Screen name="Details" component={Details} />
           <HomeStack.Screen name="Capstone" component={Capstone} />
           <HomeStack.Screen name="Documents" component={Documents} />

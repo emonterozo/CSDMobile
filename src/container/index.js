@@ -5,5 +5,6 @@ import Details from './Details/Details';
 import Capstone from './Capstone/Capstone';
 import Documents from './Documents/Documents';
 import Comments from './Comments/Comments';
+import Account from './Account/Account';
 
-export {Login, Register, Home, Details, Capstone, Documents, Comments};
+export {Login, Register, Home, Details, Capstone, Documents, Comments, Account};

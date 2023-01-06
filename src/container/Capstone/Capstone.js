@@ -176,7 +176,7 @@ const Capstone = ({navigation, route}) => {
         values.tags.forEach(tag => {
           formData.append('tags', tag);
         });
-        formData.append('professor', authenticatedUser.professor);
+        formData.append('professor', authenticatedUser.professor._id);
         formData.append('uploaded_by', authenticatedUser._id);
         values.documents.forEach((document, index) => {
           if (!isEmpty(document.path)) {

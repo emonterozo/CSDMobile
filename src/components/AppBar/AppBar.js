@@ -7,15 +7,15 @@ import {
   Icon,
   Text,
   Button,
+  Menu,
 } from 'native-base';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-
-import GlobalContext from '../../config/context';
 import {removeUser} from '../../utils/utils';
+import GlobalContext from '../../config/context';
 
 const AppBar = ({
   title,
-  isLogoutVisible,
+  isAccountVisible,
   isCommentVisible,
   handlePressComment,
   isBackVisible,
@@ -25,8 +25,13 @@ const AppBar = ({
   isApproveVisible,
   handlePressDeclined,
   handlePressApproved,
+  navigation,
 }) => {
   const {setAuthenticatedUser} = useContext(GlobalContext);
+  const handlePressAccount = () => {
+    navigation.navigate('Account');
+  };
+
   const handlePressLogout = () => {
     removeUser();
     setAuthenticatedUser(null);
@@ -94,18 +99,27 @@ const AppBar = ({
               )}
             </HStack>
           )}
-          {isLogoutVisible && (
-            <IconButton
-              icon={
-                <Icon
-                  as={MaterialCommunityIcons}
-                  name="logout"
-                  size="md"
-                  color="white"
-                />
-              }
-              onPress={handlePressLogout}
-            />
+          {isAccountVisible && (
+            <Menu
+              w="190"
+              trigger={triggerProps => {
+                return (
+                  <IconButton
+                    icon={
+                      <Icon
+                        as={MaterialCommunityIcons}
+                        name="account-circle"
+                        size="lg"
+                        color="white"
+                      />
+                    }
+                    {...triggerProps}
+                  />
+                );
+              }}>
+              <Menu.Item onPress={handlePressAccount}>Account</Menu.Item>
+              <Menu.Item onPress={handlePressLogout}>Logout</Menu.Item>
+            </Menu>
           )}
           {isCommentVisible && (
             <IconButton

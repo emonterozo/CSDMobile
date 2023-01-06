@@ -60,7 +60,7 @@ const Home = ({navigation}) => {
 
   return (
     <Box flex={1}>
-      <AppBar title="Home" isLogoutVisible />
+      <AppBar title="Home" isAccountVisible navigation={navigation} />
       {isLoading ? (
         <Center flex={1}>
           <Spinner size="lg" color="primary.400" />
@@ -182,29 +182,31 @@ const Home = ({navigation}) => {
           </HStack>
         </Box>
       )}
-      {isEqual(authenticatedUser?.type.description.toLowerCase(), STUDENT) && (
-        <Fab
-          renderInPortal={false}
-          shadow={2}
-          bottom={20}
-          size="md"
-          bg="primary.500"
-          onPress={() => {
-            navigation.navigate('Capstone', {
-              capstone: null,
-              action: 'Add',
-            });
-          }}
-          icon={
-            <Icon
-              color="white"
-              as={MaterialCommunityIcons}
-              name="plus"
-              size="md"
-            />
-          }
-        />
-      )}
+      {isEqual(authenticatedUser?.type.description.toLowerCase(), STUDENT) &&
+        isEqual(selected, 2) &&
+        !capstones.length && (
+          <Fab
+            renderInPortal={false}
+            shadow={2}
+            bottom={20}
+            size="md"
+            bg="primary.500"
+            onPress={() => {
+              navigation.navigate('Capstone', {
+                capstone: null,
+                action: 'Add',
+              });
+            }}
+            icon={
+              <Icon
+                color="white"
+                as={MaterialCommunityIcons}
+                name="plus"
+                size="md"
+              />
+            }
+          />
+        )}
     </Box>
   );
 };

@@ -205,3 +205,17 @@ export const uploadDocumentRequest = async (payload, token) => {
       throw error;
     });
 };
+
+export const updateUserRequest = async (payload, token) => {
+  return axios
+    .post(SERVER_URL + API.UPDATE_USER, payload, {
+      headers: {
+        ...authorization(token),
+        Accept: 'application/json',
+      },
+    })
+    .then(response => response.data)
+    .catch(error => {
+      throw error;
+    });
+};

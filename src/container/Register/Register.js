@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   Box,
   Button,
@@ -27,8 +27,7 @@ import {
   registerRequest,
 } from '../../services/request';
 import {isEmpty, isNull} from 'lodash';
-import GlobalContext from '../../config/context';
-import {setUser} from '../../utils/utils';
+
 import {Toast} from '../../components';
 import {isEqual} from 'lodash';
 
@@ -39,6 +38,7 @@ const schema = Yup.object().shape({
   lastName: Yup.string()
     .min(1, 'Last Name is too short!')
     .required('This field is required'),
+  honorific: Yup.string().required('This field is required'),
   email: Yup.string()
     .email('Invalid email address')
     .required('This field is required'),
@@ -62,6 +62,7 @@ const schema = Yup.object().shape({
 const initial = {
   firstName: '',
   lastName: '',
+  honorific: 's',
   username: '',
   email: '',
   password: '',
@@ -70,6 +71,21 @@ const initial = {
   professor: '',
   attachment: '',
 };
+
+const honorifics = [
+  {
+    _id: 1,
+    description: 'Mr.',
+  },
+  {
+    _id: 2,
+    description: 'Ms.',
+  },
+  {
+    _id: 3,
+    description: 'Mrs.',
+  },
+];
 
 const Register = ({navigation}) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -94,9 +110,15 @@ const Register = ({navigation}) => {
 
   const register = (values, {setFieldError, resetForm}) => {
     setIsLoading(true);
+    let honorific = '';
+    if (!isEqual(values.type, studentKey)) {
+      const data = honorifics.find(item => isEqual(item._id, values.honorific));
+      honorific = data.description;
+    }
     const formData = new FormData();
     formData.append('username', values.username);
     formData.append('password', values.password);
+    formData.append('honorific', honorific);
     formData.append('first_name', values.firstName);
     formData.append('last_name', values.lastName);
     formData.append('email', values.email);
@@ -117,22 +139,11 @@ const Register = ({navigation}) => {
         const {errors, data} = res;
         if (isNull(errors)) {
           resetForm();
-          toast.show({
-            render: () => {
-              return (
-                <Toast
-                  type="success"
-                  message="Account registered successfully."
-                />
-              );
-            },
+          navigation.navigate('OTPScreen', {
+            first_name: values.firstName,
+            last_name: values.lastName,
+            email: values.email,
           });
-          /*const user = {
-            ...data.user,
-            token: data.token,
-          };
-          setAuthenticatedUser(user);
-          setUser(user);*/
         } else {
           errors.forEach(item => setFieldError(item.field, item.error));
         }
@@ -163,6 +174,60 @@ const Register = ({navigation}) => {
         {({handleChange, handleSubmit, values, errors, setFieldValue}) => (
           <ScrollView w="90%" h="80%">
             <VStack space={3}>
+              <FormControl isInvalid={'type' in errors}>
+                <Select
+                  selectedValue={values.type}
+                  placeholder="Choose Type"
+                  _selectedItem={{
+                    bg: 'primary.400',
+                  }}
+                  onValueChange={value => {
+                    setFieldValue('type', value);
+                    if (!isEqual(value, studentKey)) {
+                      setFieldValue('professor', 'professor');
+                    }
+                  }}>
+                  {types?.map(item => (
+                    <Select.Item
+                      key={item._id}
+                      label={item.description}
+                      value={item._id}
+                    />
+                  ))}
+                </Select>
+                <FormControl.ErrorMessage
+                  ml="3"
+                  leftIcon={<WarningOutlineIcon size="xs" />}>
+                  {errors.type}
+                </FormControl.ErrorMessage>
+              </FormControl>
+              {!isEqual(values.type, studentKey) && !isEmpty(values.type) && (
+                <FormControl isInvalid={'honorific' in errors}>
+                  <Select
+                    selectedValue={values.honorific}
+                    placeholder="Choose Honorific"
+                    _selectedItem={{
+                      bg: 'primary.400',
+                    }}
+                    onValueChange={value => {
+                      setFieldValue('honorific', value);
+                    }}>
+                    {honorifics.map(item => (
+                      <Select.Item
+                        key={item._id}
+                        label={item.description}
+                        value={item._id}
+                      />
+                    ))}
+                  </Select>
+                  <FormControl.ErrorMessage
+                    ml="3"
+                    leftIcon={<WarningOutlineIcon size="xs" />}>
+                    {errors.honorific}
+                  </FormControl.ErrorMessage>
+                </FormControl>
+              )}
+
               <FormControl isInvalid={'firstName' in errors}>
                 <Input
                   InputLeftElement={
@@ -325,38 +390,11 @@ const Register = ({navigation}) => {
                   {errors.confirmPassword}
                 </FormControl.ErrorMessage>
               </FormControl>
-              <FormControl isInvalid={'type' in errors}>
-                <Select
-                  selectedValue={values.type}
-                  placeholder="Choose Type"
-                  _selectedItem={{
-                    bg: 'primary.400',
-                  }}
-                  onValueChange={value => {
-                    setFieldValue('type', value);
-                    if (!isEqual(value, studentKey)) {
-                      setFieldValue('professor', 'professor');
-                    }
-                  }}>
-                  {types?.map(item => (
-                    <Select.Item
-                      key={item._id}
-                      label={item.description}
-                      value={item._id}
-                    />
-                  ))}
-                </Select>
-                <FormControl.ErrorMessage
-                  ml="3"
-                  leftIcon={<WarningOutlineIcon size="xs" />}>
-                  {errors.type}
-                </FormControl.ErrorMessage>
-              </FormControl>
               {isEqual(values.type, studentKey) && (
                 <FormControl isInvalid={'professor' in errors}>
                   <Select
                     selectedValue={values.professor}
-                    placeholder="Choose Professor"
+                    placeholder="Choose Adviser"
                     _selectedItem={{
                       bg: 'primary.400',
                     }}

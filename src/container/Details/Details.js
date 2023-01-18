@@ -16,11 +16,13 @@ import {
   Button,
   Modal,
   Fab,
+  Tooltip,
 } from 'native-base';
 import Carousel from 'react-native-snap-carousel';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Rating} from 'react-native-ratings';
 import {useIsFocused} from '@react-navigation/native';
+import Tts from 'react-native-tts';
 
 import {AppBar} from '../../components';
 import {getRatings} from '../../utils/utils';
@@ -28,6 +30,7 @@ import GlobalContext from '../../config/context';
 import {
   getCapstoneRequest,
   updateRatingRequest,
+  updateVerifiedRequest,
   updateViewsRequest,
 } from '../../services/request';
 import {isEqual, isNull} from 'lodash';
@@ -48,6 +51,8 @@ const Details = ({navigation, route}) => {
   const [rating, setRating] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [capstone, setCapstone] = useState(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isStatusModalVisible, setIsStatusModalVisible] = useState(false);
 
   const getCapstone = () => {
     getCapstoneRequest(id).then(res => {
@@ -64,6 +69,10 @@ const Details = ({navigation, route}) => {
   useEffect(() => {
     getCapstone();
   }, [isFocused]);
+
+  useEffect(() => {
+    Tts.addEventListener('tts-finish', () => setIsSpeaking(false));
+  }, []);
 
   const handlePressSubmitRating = () => {
     setIsLoading(true);
@@ -93,6 +102,16 @@ const Details = ({navigation, route}) => {
     Linking.openURL(capstone.website);
   };
 
+  const handlePressVerified = () => {
+    setIsLoading(true);
+    updateVerifiedRequest(capstone._id, authenticatedUser.token)
+      .then(() => {
+        setIsLoading(false);
+        getCapstone();
+      })
+      .catch(err => console.log(err));
+  };
+
   return (
     <Box flex={1}>
       <AppBar
@@ -103,11 +122,55 @@ const Details = ({navigation, route}) => {
         }
       />
       <Modal
-        isOpen={isDescriptionModalVisible}
-        onClose={() => setIsDescriptionModalVisible(false)}>
+        closeOnOverlayClick={false}
+        isOpen={isStatusModalVisible}
+        onClose={() => {
+          setIsStatusModalVisible(false);
+        }}>
         <Modal.Content>
           <Modal.CloseButton />
-          <Modal.Header>Description</Modal.Header>
+          <Modal.Header>Status</Modal.Header>
+          <Modal.Body>
+            <Text fontWeight="400" alignSelf="center">
+              {capstone?.is_verified
+                ? `Verified by ${capstone?.approver.honorific} ${capstone?.approver.first_name} ${capstone?.approver.last_name}`
+                : 'Unverified'}
+            </Text>
+          </Modal.Body>
+        </Modal.Content>
+      </Modal>
+      <Modal
+        closeOnOverlayClick={false}
+        isOpen={isDescriptionModalVisible}
+        onClose={() => {
+          setIsDescriptionModalVisible(false);
+          setIsSpeaking(false);
+          Tts.stop();
+        }}>
+        <Modal.Content>
+          <Modal.CloseButton />
+          <HStack>
+            <Modal.Header>Description</Modal.Header>
+            <IconButton
+              icon={
+                <Icon
+                  as={MaterialCommunityIcons}
+                  name="volume-high"
+                  size="md"
+                  color={isSpeaking ? 'blue.500' : 'gray.500'}
+                />
+              }
+              onPress={() => {
+                if (isSpeaking) {
+                  Tts.stop();
+                  setIsSpeaking(false);
+                } else {
+                  setIsSpeaking(true);
+                  Tts.speak(capstone?.description);
+                }
+              }}
+            />
+          </HStack>
           <Modal.Body>
             <Text fontWeight="400">{capstone?.description}</Text>
           </Modal.Body>
@@ -183,9 +246,22 @@ const Details = ({navigation, route}) => {
           <Divider />
           <ScrollView>
             <Box>
-              <Heading size="sm" fontWeight="800" px={2} marginTop={2}>
-                {capstone?.title}
-              </Heading>
+              <HStack alignItems="center" marginTop={2}>
+                <Heading size="sm" fontWeight="800" pl={2}>
+                  {capstone?.title}
+                </Heading>
+                <IconButton
+                  icon={
+                    <Icon
+                      as={MaterialCommunityIcons}
+                      name="check-circle"
+                      size="md"
+                      color={capstone?.is_verified ? 'success.500' : 'gray.500'}
+                    />
+                  }
+                  onPress={() => setIsStatusModalVisible(true)}
+                />
+              </HStack>
               <VStack mx={2} space={1}>
                 <Box>
                   <HStack alignItems="center" justifyContent="space-between">
@@ -209,25 +285,6 @@ const Details = ({navigation, route}) => {
                   </Text>
                 </Box>
                 <Divider />
-                {isEqual(authenticatedUser?._id, capstone?.uploaded_by._id) ||
-                isEqual(authenticatedUser?._id, capstone?.approver._id) ? (
-                  <Box>
-                    <HStack alignItems="center">
-                      <Heading size="sm" fontWeight="600">
-                        Documents
-                      </Heading>
-                      <Button
-                        variant="link"
-                        onPress={() => {
-                          navigation.navigate('Documents', {
-                            id: capstone?._id,
-                          });
-                        }}>
-                        View documents
-                      </Button>
-                    </HStack>
-                  </Box>
-                ) : null}
                 <Box>
                   <HStack alignItems="center">
                     <Heading size="sm" fontWeight="600">
@@ -264,6 +321,16 @@ const Details = ({navigation, route}) => {
                       bg="primary.500"
                       onPress={() => setIsRateModalVisible(true)}>
                       Rate
+                    </Button>
+                  )}
+                {isEqual(authenticatedUser._id, capstone?.approver._id) &&
+                  !isEqual(authenticatedUser.type.description, GUEST) &&
+                  !capstone?.is_verified && (
+                    <Button
+                      bg="primary.500"
+                      onPress={handlePressVerified}
+                      isLoading={isLoading}>
+                      Verified
                     </Button>
                   )}
               </VStack>

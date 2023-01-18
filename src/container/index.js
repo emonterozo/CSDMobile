@@ -6,5 +6,18 @@ import Capstone from './Capstone/Capstone';
 import Documents from './Documents/Documents';
 import Comments from './Comments/Comments';
 import Account from './Account/Account';
+import OTPScreen from './Register/OTPScreen';
+import ForgotPassword from './Login/ForgotPassword';
 
-export {Login, Register, Home, Details, Capstone, Documents, Comments, Account};
+export {
+  Login,
+  Register,
+  Home,
+  Details,
+  Capstone,
+  Documents,
+  Comments,
+  Account,
+  OTPScreen,
+  ForgotPassword,
+};

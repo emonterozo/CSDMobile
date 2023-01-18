@@ -25,6 +25,7 @@ import {setUser} from '../../utils/utils';
 import {STUDENT} from '../../utils/constant';
 
 const schema = Yup.object().shape({
+  honorific: Yup.string(),
   firstName: Yup.string()
     .min(1, 'First Name is too short!')
     .required('This field is required'),
@@ -40,9 +41,33 @@ const schema = Yup.object().shape({
   professor: Yup.string().required('This field is required').nullable(true),
 });
 
+const honorifics = [
+  {
+    _id: 1,
+    description: 'Mr.',
+  },
+  {
+    _id: 2,
+    description: 'Ms.',
+  },
+  {
+    _id: 3,
+    description: 'Mrs.',
+  },
+];
+
 const Account = ({navigation}) => {
   const {authenticatedUser, setAuthenticatedUser} = useContext(GlobalContext);
+
   const initial = {
+    honorific: isEqual(
+      authenticatedUser?.type.description.toLowerCase(),
+      STUDENT,
+    )
+      ? ''
+      : honorifics.find(item =>
+          isEqual(item.description, authenticatedUser.honorific),
+        )?._id,
     firstName: authenticatedUser.first_name,
     lastName: authenticatedUser.last_name,
     username: authenticatedUser.username,
@@ -57,6 +82,13 @@ const Account = ({navigation}) => {
     setIsLoading(true);
     const payload = {
       id: authenticatedUser._id,
+      honorific: isEqual(
+        authenticatedUser?.type.description.toLowerCase(),
+        STUDENT,
+      )
+        ? ''
+        : honorifics.find(item => isEqual(item._id, values.honorific))
+            ?.description,
       first_name: values.firstName,
       last_name: values.lastName,
       username: values.username,
@@ -110,6 +142,36 @@ const Account = ({navigation}) => {
           {({handleChange, handleSubmit, values, errors, setFieldValue}) => (
             <ScrollView w="90%" h="80%">
               <VStack space={3}>
+                {!isEqual(
+                  authenticatedUser?.type.description.toLowerCase(),
+                  STUDENT,
+                ) && (
+                  <FormControl isInvalid={'honorific' in errors}>
+                    <Select
+                      selectedValue={values.honorific}
+                      placeholder="Choose Honorific"
+                      _selectedItem={{
+                        bg: 'primary.400',
+                      }}
+                      onValueChange={value => {
+                        setFieldValue('honorific', value);
+                      }}>
+                      {honorifics.map(item => (
+                        <Select.Item
+                          key={item._id}
+                          label={item.description}
+                          value={item._id}
+                        />
+                      ))}
+                    </Select>
+                    <FormControl.ErrorMessage
+                      ml="3"
+                      leftIcon={<WarningOutlineIcon size="xs" />}>
+                      {errors.honorific}
+                    </FormControl.ErrorMessage>
+                  </FormControl>
+                )}
+
                 <FormControl isInvalid={'firstName' in errors}>
                   <Input
                     InputLeftElement={

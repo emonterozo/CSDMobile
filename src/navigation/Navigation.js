@@ -13,6 +13,8 @@ import {
   Documents,
   Comments,
   Account,
+  OTPScreen,
+  ForgotPassword,
 } from '../container';
 import GlobalContext from '../config/context';
 import {getUser} from '../utils/utils';
@@ -40,7 +42,9 @@ const Navigation = () => {
       ) : isNull(authenticatedUser) ? (
         <AuthStack.Navigator screenOptions={{headerShown: false}}>
           <AuthStack.Screen name="Login" component={Login} />
+          <AuthStack.Screen name="ForgotPassword" component={ForgotPassword} />
           <AuthStack.Screen name="Register" component={Register} />
+          <AuthStack.Screen name="OTPScreen" component={OTPScreen} />
         </AuthStack.Navigator>
       ) : (
         <HomeStack.Navigator screenOptions={{headerShown: false}}>

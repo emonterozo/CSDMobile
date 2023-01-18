@@ -60,7 +60,12 @@ const Home = ({navigation}) => {
 
   return (
     <Box flex={1}>
-      <AppBar title="Home" isAccountVisible navigation={navigation} />
+      <AppBar
+        title="Home"
+        isAccountVisible
+        navigation={navigation}
+        isProfileVisible={!isEqual(authenticatedUser?.type.description, GUEST)}
+      />
       {isLoading ? (
         <Center flex={1}>
           <Spinner size="lg" color="primary.400" />

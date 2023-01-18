@@ -39,12 +39,6 @@ const schema = Yup.object().shape({
       'Enter correct url!',
     )
     .required('This field is required'),
-  documents: Yup.array(
-    Yup.object().shape({
-      fileName: Yup.string(),
-      path: Yup.string(),
-    }),
-  ),
   tags: Yup.array()
     .min(1, 'This field is required')
     .required('This field is required'),
@@ -79,28 +73,6 @@ const Capstone = ({navigation, route}) => {
     title: '',
     description: '',
     website: '',
-    documents: [
-      {
-        fileName: '',
-        path: '',
-      },
-      {
-        fileName: '',
-        path: '',
-      },
-      {
-        fileName: '',
-        path: '',
-      },
-      {
-        fileName: '',
-        path: '',
-      },
-      {
-        fileName: '',
-        path: '',
-      },
-    ],
     tags: [],
   };
 
@@ -178,15 +150,6 @@ const Capstone = ({navigation, route}) => {
         });
         formData.append('professor', authenticatedUser.professor._id);
         formData.append('uploaded_by', authenticatedUser._id);
-        values.documents.forEach((document, index) => {
-          if (!isEmpty(document.path)) {
-            formData.append(`chapter ${index + 1}`, {
-              uri: document.path,
-              type: 'application/pdf',
-              name: `sample-${index}.pdf`,
-            });
-          }
-        });
         formData.append('logo', {
           uri: images[0],
           type: 'image/png',
@@ -427,7 +390,7 @@ const Capstone = ({navigation, route}) => {
                   searchPlaceholder="Search tags"
                   showBadgeDot={false}
                   badgeTextStyle={styles.text}
-                  badgeColors="#ffc97d"
+                  badgeColors="#97a3b4"
                   style={styles.dropdown}
                   placeholderStyle={styles.placeholder}
                 />
@@ -440,48 +403,6 @@ const Capstone = ({navigation, route}) => {
                   </HStack>
                 )}
               </FormControl>
-              {isEqual(action, 'Add') &&
-                values.documents.map((document, index) => (
-                  <FormControl>
-                    <FormControl.Label>{`Chapter ${
-                      index + 1
-                    }`}</FormControl.Label>
-                    <Box
-                      flex={1}
-                      h="45"
-                      bg="white"
-                      borderColor="gray.300"
-                      borderWidth={1}
-                      borderRadius="sm">
-                      <HStack h="10" alignItems="center">
-                        <Pressable
-                          onPress={() =>
-                            handleDocumentSelection(
-                              setFieldValue,
-                              values.documents,
-                              index,
-                            )
-                          }>
-                          <Box
-                            alignItems="center"
-                            justifyContent="center"
-                            bg="primary.500"
-                            m={2}
-                            borderRadius="sm">
-                            <Text paddingX={1} color="white">
-                              Choose file
-                            </Text>
-                          </Box>
-                        </Pressable>
-                        <Text color="gray.600">
-                          {isEmpty(values.documents[index].fileName)
-                            ? 'No file chosen'
-                            : values.documents[index].fileName}
-                        </Text>
-                      </HStack>
-                    </Box>
-                  </FormControl>
-                ))}
             </VStack>
             <Button
               isLoading={isLoading}
@@ -508,7 +429,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   text: {
-    color: 'black',
+    color: '#164e63',
   },
   placeholder: {
     color: '#a1a1aa',

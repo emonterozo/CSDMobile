@@ -73,6 +73,19 @@ const Login = ({navigation}) => {
       .catch(() => setIsLoading(false));
   };
 
+  const handlePressForgotPassword = () => {
+    toast.show({
+      render: () => {
+        return (
+          <Toast
+            type="error"
+            message="Email sent successfully. Please check your email"
+          />
+        );
+      },
+    });
+  };
+
   return (
     <Box flex={1} justifyContent="center" alignItems="center">
       <VStack w="90%" space={1} marginBottom="10">
@@ -103,35 +116,44 @@ const Login = ({navigation}) => {
           variant="outline"
           placeholder="Username"
         />
-        <Input
-          InputLeftElement={
-            <Icon
-              as={MaterialCommunityIcons}
-              name="lock-outline"
-              color="muted.400"
-              size={5}
-              ml="2"
-            />
-          }
-          onChangeText={setPassword}
-          value={password}
-          type={isPasswordVisible ? 'type' : 'password'}
-          variant="outline"
-          placeholder="Password"
-          InputRightElement={
-            <IconButton
-              onPress={() => setIsPasswordVisible(!isPasswordVisible)}
-              icon={
-                <Icon
-                  as={MaterialCommunityIcons}
-                  name={isPasswordVisible ? 'eye' : 'eye-off'}
-                  color="muted.400"
-                  size={5}
-                />
-              }
-            />
-          }
-        />
+        <VStack space={1}>
+          <Input
+            InputLeftElement={
+              <Icon
+                as={MaterialCommunityIcons}
+                name="lock-outline"
+                color="muted.400"
+                size={5}
+                ml="2"
+              />
+            }
+            onChangeText={setPassword}
+            value={password}
+            type={isPasswordVisible ? 'type' : 'password'}
+            variant="outline"
+            placeholder="Password"
+            InputRightElement={
+              <IconButton
+                onPress={() => setIsPasswordVisible(!isPasswordVisible)}
+                icon={
+                  <Icon
+                    as={MaterialCommunityIcons}
+                    name={isPasswordVisible ? 'eye' : 'eye-off'}
+                    color="muted.400"
+                    size={5}
+                  />
+                }
+              />
+            }
+          />
+          <Text
+            alignSelf="flex-end"
+            color="blue.400"
+            bold
+            onPress={() => navigation.navigate('ForgotPassword')}>
+            Forgot Password?
+          </Text>
+        </VStack>
       </VStack>
       <Button
         isLoading={isLoading}

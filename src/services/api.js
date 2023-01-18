@@ -17,4 +17,8 @@ export const API = {
   GET_PROFESSORS: '/professors',
   UPLOAD_DOCUMENT: '/capstone/upload_document',
   UPDATE_USER: '/user/update',
+  VERIFY_OTP: '/user/verify_otp',
+  RESEND_OTP: '/user/resend_otp',
+  FORGOT_PASSWORD: '/user/forgot_password',
+  UPDATE_VERIFIED: '/capstone/update/verified',
 };

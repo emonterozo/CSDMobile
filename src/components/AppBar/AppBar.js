@@ -26,6 +26,10 @@ const AppBar = ({
   handlePressDeclined,
   handlePressApproved,
   navigation,
+  isCommentFilterVisible,
+  handlePressFilter,
+  isFilterApplied,
+  isProfileVisible,
 }) => {
   const {setAuthenticatedUser} = useContext(GlobalContext);
   const handlePressAccount = () => {
@@ -117,7 +121,9 @@ const AppBar = ({
                   />
                 );
               }}>
-              <Menu.Item onPress={handlePressAccount}>Account</Menu.Item>
+              {isProfileVisible && (
+                <Menu.Item onPress={handlePressAccount}>Account</Menu.Item>
+              )}
               <Menu.Item onPress={handlePressLogout}>Logout</Menu.Item>
             </Menu>
           )}
@@ -132,6 +138,19 @@ const AppBar = ({
                 />
               }
               onPress={handlePressComment}
+            />
+          )}
+          {isCommentFilterVisible && (
+            <IconButton
+              icon={
+                <Icon
+                  as={MaterialCommunityIcons}
+                  name={isFilterApplied ? 'filter-check' : 'filter'}
+                  size="md"
+                  color="white"
+                />
+              }
+              onPress={handlePressFilter}
             />
           )}
         </HStack>

@@ -164,9 +164,9 @@ export const addCommentRequest = async (payload, token) => {
     });
 };
 
-export const getCommentsRequest = async id => {
+export const getCommentsRequest = async (id, rating) => {
   return axios
-    .get(SERVER_URL + API.GET_COMMENTS + id)
+    .get(`${SERVER_URL}${API.GET_COMMENTS}${id}/${rating}`)
     .then(response => response.data)
     .catch(error => {
       throw error;
@@ -214,6 +214,67 @@ export const updateUserRequest = async (payload, token) => {
         Accept: 'application/json',
       },
     })
+    .then(response => response.data)
+    .catch(error => {
+      throw error;
+    });
+};
+
+export const verifyOTPRequest = async payload => {
+  return axios
+    .post(SERVER_URL + API.VERIFY_OTP, payload, {
+      headers: {
+        Accept: 'application/json',
+      },
+    })
+    .then(response => response.data)
+    .catch(error => {
+      throw error;
+    });
+};
+
+export const resendOTPRequest = async payload => {
+  return axios
+    .post(SERVER_URL + API.RESEND_OTP, payload, {
+      headers: {
+        Accept: 'application/json',
+      },
+    })
+    .then(response => response.data)
+    .catch(error => {
+      throw error;
+    });
+};
+
+export const forgotPasswordRequest = async email => {
+  return axios
+    .post(
+      SERVER_URL + API.FORGOT_PASSWORD,
+      {email: email},
+      {
+        headers: {
+          Accept: 'application/json',
+        },
+      },
+    )
+    .then(response => response.data)
+    .catch(error => {
+      throw error;
+    });
+};
+
+export const updateVerifiedRequest = async (id, token) => {
+  return axios
+    .post(
+      SERVER_URL + API.UPDATE_VERIFIED,
+      {id: id},
+      {
+        headers: {
+          ...authorization(token),
+          Accept: 'application/json',
+        },
+      },
+    )
     .then(response => response.data)
     .catch(error => {
       throw error;

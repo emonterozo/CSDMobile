@@ -62,7 +62,7 @@ const schema = Yup.object().shape({
 const initial = {
   firstName: '',
   lastName: '',
-  honorific: 's',
+  honorific: '1',
   username: '',
   email: '',
   password: '',
@@ -74,15 +74,15 @@ const initial = {
 
 const honorifics = [
   {
-    _id: 1,
+    _id: '1',
     description: 'Mr.',
   },
   {
-    _id: 2,
+    _id: '2',
     description: 'Ms.',
   },
   {
-    _id: 3,
+    _id: '3',
     description: 'Mrs.',
   },
 ];

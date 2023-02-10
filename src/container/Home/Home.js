@@ -85,6 +85,7 @@ const Home = ({navigation}) => {
                     })
                   }>
                   <Box
+                    h={200}
                     rounded="lg"
                     overflow="hidden"
                     borderColor="coolGray.300"

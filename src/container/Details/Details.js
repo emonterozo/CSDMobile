@@ -226,6 +226,9 @@ const Details = ({navigation, route}) => {
           <Box my={2} alignItems="center">
             <Carousel
               ref={isCarousel}
+              autoplay
+              loop
+              autoplayInterval={2000}
               data={[capstone?.logo, ...capstone?.images]}
               renderItem={({item}) => (
                 <Box>

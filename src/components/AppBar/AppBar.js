@@ -46,7 +46,7 @@ const AppBar = ({
       <StatusBar bg="#e68300" barStyle="light-content" />
       <Box safeAreaTop bg="primary.500" />
       <HStack
-        bg="primary.500"
+        bg="#191919"
         px="1"
         py="3"
         justifyContent="space-between"

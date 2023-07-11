@@ -1,5 +1,5 @@
 import React, {useContext, useState, useEffect} from 'react';
-import {StyleSheet} from 'react-native';
+import {StyleSheet, ImageBackground} from 'react-native';
 import {
   HStack,
   Box,
@@ -72,70 +72,71 @@ const Home = ({navigation}) => {
         </Center>
       ) : (
         <Box flex={1}>
-          <FlatList
-            data={capstones}
-            numColumns={2}
-            renderItem={({item}) => (
-              <Box m="0.5" flex={1} maxWidth="50%">
-                <Pressable
-                  onPress={() =>
-                    navigation.navigate('Details', {
-                      id: item._id,
-                      capstone: item,
-                    })
-                  }>
-                  <Box
-                    h={200}
-                    rounded="lg"
-                    overflow="hidden"
-                    borderColor="coolGray.300"
-                    borderWidth="1">
-                    <Box>
-                      <AspectRatio w="100%" ratio={16 / 9}>
-                        <Image
-                          source={{
-                            uri: item.logo,
-                          }}
-                          alt="image"
-                        />
-                      </AspectRatio>
-                    </Box>
-                    <Stack p="4" space={2}>
-                      <Stack space={1}>
-                        <Heading size="md" numberOfLines={2}>
-                          {item.title}
-                        </Heading>
-                        <Text
-                          fontSize="sm"
-                          color="violet.500"
-                          fontWeight="500"
-                          ml="-0.5"
-                          mt="-1">
-                          {`${getRatings(item.ratings).ratings} stars`}
-                        </Text>
+          <ImageBackground
+            source={require('../../assets/home.png')}
+            resizeMode="cover"
+            style={styles.image}>
+            <FlatList
+              data={capstones}
+              numColumns={2}
+              renderItem={({item}) => (
+                <Box m="0.5" flex={1} maxWidth="50%">
+                  <Pressable
+                    onPress={() =>
+                      navigation.navigate('Details', {
+                        id: item._id,
+                        capstone: item,
+                      })
+                    }>
+                    <Box
+                      h={200}
+                      rounded="lg"
+                      overflow="hidden"
+                      borderColor="coolGray.300"
+                      borderWidth="1">
+                      <Box>
+                        <AspectRatio w="100%" ratio={16 / 9}>
+                          <Image
+                            source={{
+                              uri: item.logo,
+                            }}
+                            alt="image"
+                          />
+                        </AspectRatio>
+                      </Box>
+                      <Stack p="4" space={2}>
+                        <Stack space={1}>
+                          <Heading size="md" numberOfLines={2}>
+                            {item.title}
+                          </Heading>
+                          <Text
+                            fontSize="sm"
+                            color="violet.500"
+                            fontWeight="500"
+                            ml="-0.5"
+                            mt="-1">
+                            {`${getRatings(item.ratings).ratings} stars`}
+                          </Text>
+                        </Stack>
                       </Stack>
-                    </Stack>
-                  </Box>
-                </Pressable>
-              </Box>
-            )}
-            contentContainerStyle={styles.list}
-            ListEmptyComponent={
-              <Center flexGrow={1}>
-                <Text bold>No available data</Text>
-              </Center>
-            }
-          />
+                    </Box>
+                  </Pressable>
+                </Box>
+              )}
+              contentContainerStyle={styles.list}
+              ListEmptyComponent={
+                <Center flexGrow={1}>
+                  <Text bold>No available data</Text>
+                </Center>
+              }
+            />
+          </ImageBackground>
         </Box>
       )}
 
       {!isEqual(authenticatedUser?.type.description, GUEST) && (
         <Box bg="white" width="100%" alignSelf="center">
-          <HStack
-            bg="primary.500"
-            alignItems="center"
-            safeAreaBottom
-            shadow={6}>
+          <HStack bg="#191919" alignItems="center" safeAreaBottom shadow={6}>
             <Pressable
               cursor="pointer"
               opacity={selected === 1 ? 1 : 0.5}
@@ -220,6 +221,10 @@ const Home = ({navigation}) => {
 const styles = StyleSheet.create({
   list: {
     flexGrow: 1,
+  },
+  image: {
+    width: '100%',
+    height: '100%',
   },
 });
 

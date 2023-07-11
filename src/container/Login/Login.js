@@ -1,8 +1,8 @@
 import React, {useContext, useState, useEffect} from 'react';
+import {ImageBackground, StyleSheet} from 'react-native';
 import {
   Box,
   Button,
-  Heading,
   HStack,
   Icon,
   Input,
@@ -88,107 +88,119 @@ const Login = ({navigation}) => {
 
   return (
     <Box flex={1} justifyContent="center" alignItems="center">
-      <VStack w="90%" space={1} marginBottom="10">
-        <Heading color="muted.800">Welcome back!</Heading>
-        <Text color="muted.400">Login with your existing account</Text>
-      </VStack>
-      {!isEmpty(error) && (
-        <HStack alignItems="center" space={1} mb={3}>
-          <WarningOutlineIcon size="4" color="error.500" />
-          <Text color="error.500" w="85%">
-            {error}
-          </Text>
-        </HStack>
-      )}
-      <VStack w="90%" space={3}>
-        <Input
-          InputLeftElement={
-            <Icon
-              as={MaterialCommunityIcons}
-              name="account-outline"
-              color="muted.400"
-              size={5}
-              ml="2"
-            />
-          }
-          onChangeText={setUsername}
-          value={username}
-          variant="outline"
-          placeholder="Username"
-        />
-        <VStack space={1}>
+      <ImageBackground
+        source={require('../../assets/login.png')}
+        resizeMode="cover"
+        style={styles.image}>
+        <VStack w="90%" space={3} mt={40}>
+          {!isEmpty(error) && (
+            <HStack alignItems="center" space={1} mb={3}>
+              <WarningOutlineIcon size="4" color="error.500" />
+              <Text color="error.500" w="85%" bold>
+                {error}
+              </Text>
+            </HStack>
+          )}
           <Input
             InputLeftElement={
               <Icon
                 as={MaterialCommunityIcons}
-                name="lock-outline"
+                name="account-outline"
                 color="muted.400"
                 size={5}
                 ml="2"
               />
             }
-            onChangeText={setPassword}
-            value={password}
-            type={isPasswordVisible ? 'type' : 'password'}
-            variant="outline"
-            placeholder="Password"
-            InputRightElement={
-              <IconButton
-                onPress={() => setIsPasswordVisible(!isPasswordVisible)}
-                icon={
-                  <Icon
-                    as={MaterialCommunityIcons}
-                    name={isPasswordVisible ? 'eye' : 'eye-off'}
-                    color="muted.400"
-                    size={5}
-                  />
-                }
-              />
-            }
+            onChangeText={setUsername}
+            value={username}
+            variant="filled"
+            placeholder="Username"
           />
+          <VStack space={1}>
+            <Input
+              InputLeftElement={
+                <Icon
+                  as={MaterialCommunityIcons}
+                  name="lock-outline"
+                  color="muted.400"
+                  size={5}
+                  ml="2"
+                />
+              }
+              onChangeText={setPassword}
+              value={password}
+              type={isPasswordVisible ? 'type' : 'password'}
+              variant="filled"
+              placeholder="Password"
+              InputRightElement={
+                <IconButton
+                  onPress={() => setIsPasswordVisible(!isPasswordVisible)}
+                  icon={
+                    <Icon
+                      as={MaterialCommunityIcons}
+                      name={isPasswordVisible ? 'eye' : 'eye-off'}
+                      color="muted.400"
+                      size={5}
+                    />
+                  }
+                />
+              }
+            />
+            <Text
+              alignSelf="flex-end"
+              color="blue.400"
+              bold
+              onPress={() => navigation.navigate('ForgotPassword')}>
+              Forgot Password?
+            </Text>
+          </VStack>
+        </VStack>
+        <Button
+          isLoading={isLoading}
+          isLoadingText="Loading"
+          variant="solid"
+          rounded="lg"
+          size="lg"
+          marginTop={10}
+          marginBottom={3}
+          bg="primary.500"
+          w="60%"
+          onPress={handlePressLogin}>
+          LOG IN
+        </Button>
+        <HStack w="90%" space={1} justifyContent="center">
+          <Text color="muted.900">Don't have account?</Text>
           <Text
-            alignSelf="flex-end"
             color="blue.400"
             bold
-            onPress={() => navigation.navigate('ForgotPassword')}>
-            Forgot Password?
+            onPress={() => navigation.navigate('Register')}>
+            Sign Up
           </Text>
-        </VStack>
-      </VStack>
-      <Button
-        isLoading={isLoading}
-        isLoadingText="Loading"
-        variant="solid"
-        rounded="lg"
-        size="lg"
-        marginTop={10}
-        marginBottom={3}
-        bg="primary.500"
-        w="60%"
-        onPress={handlePressLogin}>
-        LOG IN
-      </Button>
-      <HStack w="90%" space={1} justifyContent="center">
-        <Text color="muted.900">Don't have account?</Text>
-        <Text
-          color="blue.400"
-          bold
-          onPress={() => navigation.navigate('Register')}>
-          Sign Up
-        </Text>
-      </HStack>
-      <Button
-        mt={5}
-        variant="outline"
-        rounded="lg"
-        size="lg"
-        colorScheme="lightBlue"
-        w="70%"
-        onPress={() => setAuthenticatedUser(GUEST_USER)}>
-        Continue as Visitor
-      </Button>
+        </HStack>
+        <Button
+          mt={5}
+          rounded="lg"
+          size="lg"
+          bgColor="white"
+          _text={{
+            color: 'blue.400',
+          }}
+          w="70%"
+          onPress={() => setAuthenticatedUser(GUEST_USER)}>
+          Continue as Visitor
+        </Button>
+      </ImageBackground>
     </Box>
   );
 };
+
+const styles = StyleSheet.create({
+  image: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
 
 export default Login;
